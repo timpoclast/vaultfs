@@ -7,8 +7,7 @@ The intent for this package is to get secrets from the vault server if the secre
 
 ```bash
 git clone 
-cd vaultfs
-sudo python3.6 setup.py install
+pipx install ./vaultfs
 ```
 
 ## Usage

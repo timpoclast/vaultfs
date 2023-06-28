@@ -1,0 +1,34 @@
+[project]
+name = "vaultfs"
+description = "Hashicorp Vault fuse filesystem"
+readme = 'README.rst'
+version = "1.1.0"
+license = {text = "MIT"}
+authors = [
+    { name = "PsyanticY", email = "iuns@outlook.fr" },
+		{ name = "Tim Postlewaite", email = "timothy.postlewaite@gmail.com" }
+]
+dependencies = [
+    "requests",
+		"fusepy",
+    "appdirs"
+]
+classifiers=[
+        'Development Status :: 1 - Development',
+        'Intended Audience :: Security/Automation',
+        'License :: OSI Approved :: MIT License',
+        'Natural Language :: English',
+        'Programming Language :: Python :: 3 :: Only'
+        ]
+keywords=[ "Security", "HashiCorpVault", "keys", "fuse" ]
+#  data_files =[('/etc', ['config/vaultfs.cfg'])],
+
+[project.scripts]
+vaultfs = "vaultfs.vaultfs:main"
+
+[project.optional-dependencies]
+dev = [
+    "tox",
+    "pre-commit",
+    "bump2version"
+]
