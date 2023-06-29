@@ -1,64 +1,79 @@
-from  vaultfs.logger import VaultfsLogger
-#from  logger import VaultfsLogger
+from vaultfs.logger import VaultfsLogger
+# from  logger import VaultfsLogger
 import argparse
 import requests
 import os.path
 import json
 import sys
+from pathlib import Path
 
 # setting logger.
 log = VaultfsLogger()
 
-def check_remote(remote):
+
+def check_remote(remote, **kwargs):
+    kwargs['timeout'] = 5
+    kwargs['verify'] = Path.home() / 'Projects' / 'env-setup' / \
+        'cloud' / 'vault' / 'vault.crt'
+
     try:
-        r = requests.get(remote,timeout=5)
+        r = requests.get(remote, **kwargs)
     except requests.exceptions.RequestException as e:
+        log.error("request failed")
+
         log.error(e)
         sys.exit(1)
 
+
 def check_folder(folder):
-    if os.path.isdir(folder):
+    if Path.is_dir(Path(folder)):
         return
     else:
         log.error("Failed to find '{}': No such directory".format(folder))
         sys.exit(1)
 
+
 def check_file(file):
-    if os.path.isfile(file):
+    if Path.is_file(Path(file)):
         return
     else:
         log.error("Failed to find '{}': No such file".format(file))
         sys.exit(1)
 
+
 def _auth_payload(payload):
 
-    if os.path.isfile(payload):
+    if Path.is_file(payload):
         with open(payload) as f:
             auth_token = f.read()
         return auth_token.rstrip()
     else:
         log.error("Can't find the payload file containing the secret token")
-        sys.exit(1) # This is not working properly
+        sys.exit(1)  # This is not working properly
         # make sure we exit from fuse
 
 # We needs to login as the role-id and get a token that we can use to get secrets
+
+
 def get_secrets(payload, remote, secret_path, secret_name, full_path, data_key='content', timeout=1):
 
     # maybe an object for these remote, secret_path, secret_name
     headers = {"X-Vault-Token": _auth_payload(payload)}
     error_count = 0
     notFound = 0
-    for i in range(0,len(secret_path)):
-        remote_credentials_endpoint = remote + "/v1/" + secret_path[i] + "/data/" + secret_name
+    for i in range(0, len(secret_path)):
+        remote_credentials_endpoint = remote + "/v1/" + \
+            secret_path[i] + "/data/" + secret_name
         try:
-            r = requests.get(remote_credentials_endpoint, headers=headers, timeout=timeout)
+            r = requests.get(remote_credentials_endpoint,
+                             headers=headers, timeout=timeout)
             status = r.status_code
             reason = r.reason
             data = r.json()
         except requests.exceptions.RequestException as e:
             log.error(e.args[0])
             # get a better error message
-            #sys.exit(1)
+            # sys.exit(1)
         # if status == 404:
         #     if 'errors' in data:
         #         error_count += 1
@@ -79,19 +94,23 @@ def get_secrets(payload, remote, secret_path, secret_name, full_path, data_key='
             log.error("{}: {}".format(reason, data))
             break
     if (notFound == len(secret_path)):
-        log.error("Can't find secret {} in provided secret engines: {} ".format(secret_name, ', '.join(secret_path)))
+        log.error("Can't find secret {} in provided secret engines: {} ".format(
+            secret_name, ', '.join(secret_path)))
+
 
 def secrets_time(payload, remote, secret_path, secret_name, timeout=1):
 
     # maybe an object for these remote, secret_path, secret_name
     headers = {"X-Vault-Token": _auth_payload(payload)}
     exist = False
-    for i in range(0,len(secret_path)):
-        remote_credentials_endpoint = remote + "/v1/" + secret_path[i] + "/metadata/" + secret_name
+    for i in range(0, len(secret_path)):
+        remote_credentials_endpoint = remote + "/v1/" + \
+            secret_path[i] + "/metadata/" + secret_name
         try:
-            r = requests.get(remote_credentials_endpoint, headers=headers, timeout=timeout)
+            r = requests.get(remote_credentials_endpoint,
+                             headers=headers, timeout=timeout)
             status = r.status_code
-            #reason = r.reason
+            # reason = r.reason
             data = r.json()
         except requests.exceptions.RequestException as e:
             log.error(e.args[0])
@@ -102,7 +121,8 @@ def secrets_time(payload, remote, secret_path, secret_name, timeout=1):
     if exist:
         current_version = data['data']['current_version']
         print(current_version)
-        creation_time = data['data']['versions'][str(current_version)]['created_time']
+        creation_time = data['data']['versions'][str(
+            current_version)]['created_time']
         return creation_time.split(".", 1)[0]
     else:
         return None

@@ -1,0 +1,23 @@
+{
+	// Use IntelliSense to learn about possible attributes.
+	// Hover to view descriptions of existing attributes.
+	// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "VaultFS",
+			"type": "python",
+			"request": "launch",
+			"program": "vaultfs/vaultfs.py",
+			"console": "integratedTerminal",
+			"justMyCode": true,
+			"args": [
+				"-m", "/mnt/vaultfs",
+				"-l", "$HOME/.local/vaultfs",
+				"-r", "https://127.0.0.1:8200",
+				"-s", "users",
+				"-p", "$HOME/.vault-token"
+			]
+		}
+	]
+}

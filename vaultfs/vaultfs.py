@@ -19,8 +19,10 @@ log = VaultfsLogger()
 
 
 def vaultfs(mountpoint, local, remote, payload, secrets_path):
-    FUSE(vault_fuse(local, remote, payload, secrets_path, recheck_timestamp=604800), mountpoint, nothreads=True,
-         foreground=True)
+    vf = vault_fuse(local, remote, payload, secrets_path,
+                    recheck_timestamp=604800)
+
+    FUSE(vf, mountpoint, nothreads=True, foreground=True)
 
 
 def load_config():
@@ -56,20 +58,20 @@ def main():
     parser.add_argument('-c', '--config', dest='config',
                         metavar='', required=False, help='Configuration file.')
     parser.add_argument('-m', '--mountpoint', dest='mountpoint', metavar='',
-                        required=False, help='where the fuse filesystem will be mounted.')
+                        required=False, help='where the fuse filesystem will be mounted. E.g. /mtn/vaultfs')
     parser.add_argument('-l', '--local', dest='local', metavar='', required=False,
-                        help='credentials local path after being pulled from vault.')
+                        help='credentials local path after being pulled from vault. E.g. ')
     parser.add_argument('-r', '--remote', dest='remote', metavar='',
-                        required=False, help='Vault Server HTTPS address.')
+                        required=False, help='Vault Server HTTPS address. E.g. https://localhost:8200')
     parser.add_argument('-s', '--secrets-path', dest='secrets_path', metavar='', required=False,
                         action='append', help='List of secrets path in the Vault server.')
     parser.add_argument('-p', '--payload', dest='payload', metavar='', required=False,
-                        help='.Vault authentication token')
+                        help='.Vault authentication token. E.g. $(cat $HOME/.vault-token)')
 
     args = parser.parse_args()
     if not args.config and (args.mountpoint is None or args.local is None or args.payload is None or args.remote is None or args.secrets_path is None):
         parser.error(
-            'arguments: "--mountpoint", "--local", "--remote", "--secetes-path" and "--payload" are required when "--config" is missing')
+            'arguments: "--mountpoint", "--local", "--remote", "--secrets-path" and "--payload" are required when "--config" is missing')
 
     if args.config:
         load_config()

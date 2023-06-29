@@ -51,6 +51,7 @@ TODO:
 - Implement getting configs from a file (that we may put in /etc/) \[done\]
 - Change the look with list call and search
 - Explore how to remove the cache entirely (nah, let's just implement a correct caching mecanism)
+- ensure vault is unsealed
 ### Notes
 
 Using a non Empty folder as the mountpoint fail with this error: 
