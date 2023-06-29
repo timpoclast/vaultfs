@@ -1,24 +1,29 @@
 from vaultfs.logger import VaultfsLogger
 # from  logger import VaultfsLogger
 import argparse
-import requests
+from requests import get
+from requests.exceptions import RequestException
+# import requests
 import os.path
 import json
 import sys
 from pathlib import Path
 
+def __init__():
+    pass
+
 # setting logger.
 log = VaultfsLogger()
 
+_requests_kwargs = {
+    'timeout': 5,
+    'verify': Path.home() / 'Projects' / 'env-setup' /'cloud' / 'vault' / 'vault.crt'
+}
 
-def check_remote(remote, **kwargs):
-    kwargs['timeout'] = 5
-    kwargs['verify'] = Path.home() / 'Projects' / 'env-setup' / \
-        'cloud' / 'vault' / 'vault.crt'
-
+def check_remote(remote):
     try:
-        r = requests.get(remote, **kwargs)
-    except requests.exceptions.RequestException as e:
+        r = get(remote, **_requests_kwargs)
+    except RequestException as e:
         log.error("request failed")
 
         log.error(e)
@@ -41,7 +46,7 @@ def check_file(file):
         sys.exit(1)
 
 
-def _auth_payload(payload):
+def _auth_payload(payload: Path):
 
     if Path.is_file(payload):
         with open(payload) as f:
@@ -65,12 +70,12 @@ def get_secrets(payload, remote, secret_path, secret_name, full_path, data_key='
         remote_credentials_endpoint = remote + "/v1/" + \
             secret_path[i] + "/data/" + secret_name
         try:
-            r = requests.get(remote_credentials_endpoint,
-                             headers=headers, timeout=timeout)
+            r = get(remote_credentials_endpoint,
+                             headers=headers, **_requests_kwargs)
             status = r.status_code
             reason = r.reason
             data = r.json()
-        except requests.exceptions.RequestException as e:
+        except RequestException as e:
             log.error(e.args[0])
             # get a better error message
             # sys.exit(1)
@@ -107,12 +112,12 @@ def secrets_time(payload, remote, secret_path, secret_name, timeout=1):
         remote_credentials_endpoint = remote + "/v1/" + \
             secret_path[i] + "/metadata/" + secret_name
         try:
-            r = requests.get(remote_credentials_endpoint,
-                             headers=headers, timeout=timeout)
+            r = get(remote_credentials_endpoint,
+                             headers=headers, **_requests_kwargs)
             status = r.status_code
             # reason = r.reason
             data = r.json()
-        except requests.exceptions.RequestException as e:
+        except RequestException as e:
             log.error(e.args[0])
             sys.exit(1)
         if status == 200:

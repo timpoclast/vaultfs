@@ -5,18 +5,18 @@
 	"version": "0.2.0",
 	"configurations": [
 		{
-			"name": "VaultFS",
+			"name": "Python: Module",
 			"type": "python",
 			"request": "launch",
-			"program": "vaultfs/vaultfs.py",
+			// "module": "$('mytest.')${file}"
+			"module": "vaultfs.vaultfs",
 			"console": "integratedTerminal",
-			"justMyCode": true,
 			"args": [
 				"-m", "/mnt/vaultfs",
-				"-l", "$HOME/.local/vaultfs",
+				"-l", "${env:HOME}/.local/vaultfs",
 				"-r", "https://127.0.0.1:8200",
 				"-s", "users",
-				"-p", "$HOME/.vault-token"
+				"-p", "${env:HOME}/.vault-token"
 			]
 		}
 	]

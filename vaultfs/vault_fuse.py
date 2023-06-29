@@ -53,7 +53,7 @@ class vault_fuse(Operations):
         full_path = self._full_path(path)
         secret_name = os.path.basename(full_path)
         #FIXME The fuck are those files
-        if secret_name in ".xdg-volume-info" "autorun.inf" :
+        if secret_name in ".xdg-volume-info" "autorun.inf" ".Trash" ".Trash-1000":
             pass
         else:
             if not os.path.exists(full_path):
